@@ -76,12 +76,13 @@ def savePersonInfo(person):
 
 
 def next(collection):
-    queryResult = db.AQLQuery('''for doc in {0}
+    aql = '''for doc in {0}
                               filter doc.raw == true
-                              sort doc.rating desc
-                              limit {1},{1}
+                              sort doc.{1} desc
+                              limit {2},{2}
                               return doc
-                              '''.format(collection,random.randint(1, 20)), rawResults=True, skip=int())
+                              '''.format(collection, 'rating' if collection == 'movie' else 'movieCount', random.randint(1, 20))
+    queryResult = db.AQLQuery(aql, rawResults=True, skip=int())
     for todo in queryResult:
         return todo
     return None
