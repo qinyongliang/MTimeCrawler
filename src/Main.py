@@ -115,34 +115,35 @@ def crawlerPerson(id,old={}):
                 'type': relationPerson['relation']
                 }, '{}_{}'.format(str(id), str(relationPerson['rPersonId'])),'edge')
 
-    logger.info("\t{}参与了{}部作品，记录中".format(
-        personInfo['name'], personInfo['movieCount']))
-    #获取参演电影列表
-    for page in range(1,int(personInfo['movieCount']/20)+2):
-        movieList = get(participateListUrl.format(id,page)).json()
-        for rawMovie in movieList:
-            #保存到待爬取列表
-            try:
-                if(not have('movie',rawMovie['id'])):
-                    save("movie", {**rawMovie, **{
-                        "raw": True,
-                        "name":getName(rawMovie)
-                    }}, rawMovie['id'])
-                personate = None
-                if('personates' in rawMovie.keys()):
-                    personate = '|'.join(
-                        list(map(lambda v: v['name'], rawMovie['personates'])))
-                else:
-                    personate =  getpersonate(rawMovie)
-                #保存扮演信息
-                if(personate!=None and personate!=''):
-                    save('personate_edge', {
-                        '_from': 'person/' + str(id),
-                        '_to': 'movie/' + str(rawMovie['id']),
-                        'type': personate
-                    }, '{}_{}'.format(str(id), str(rawMovie['id'])), 'edge')
-            except:
-                traceback.print_exc()
+    if('movieCount' in personInfo.keys()):
+        logger.info("\t{}参与了{}部作品，记录中".format(
+            personInfo['name'], personInfo['movieCount']))
+        #获取参演电影列表
+        for page in range(1,int(personInfo['movieCount']/20)+2):
+            movieList = get(participateListUrl.format(id,page)).json()
+            for rawMovie in movieList:
+                #保存到待爬取列表
+                try:
+                    if(not have('movie',rawMovie['id'])):
+                        save("movie", {**rawMovie, **{
+                            "raw": True,
+                            "name":getName(rawMovie)
+                        }}, rawMovie['id'])
+                    personate = None
+                    if('personates' in rawMovie.keys()):
+                        personate = '|'.join(
+                            list(map(lambda v: v['name'], rawMovie['personates'])))
+                    else:
+                        personate =  getpersonate(rawMovie)
+                    #保存扮演信息
+                    if(personate!=None and personate!=''):
+                        save('personate_edge', {
+                            '_from': 'person/' + str(id),
+                            '_to': 'movie/' + str(rawMovie['id']),
+                            'type': personate
+                        }, '{}_{}'.format(str(id), str(rawMovie['id'])), 'edge')
+                except:
+                    traceback.print_exc()
 def personThread():
     while(True):
         nextPerson = next('person')
@@ -150,7 +151,7 @@ def personThread():
             try:
                 if(not have('person', nextPerson['id'])):
                     nextPerson['raw'] = False
-                    nextPerson.save()
+                    save('person', nextPerson, nextPerson['_key'])
                     logger.info(u"开始获取成员{}的信息".format(nextPerson['name']))
                     crawlerPerson(nextPerson['id'],nextPerson)
             except:
@@ -166,7 +167,7 @@ def movieThread():
             try:
                 if(not have('movie', nextMovie['id'])):
                     nextMovie['raw'] = False
-                    nextMovie.save()
+                    save('movie',nextMovie,nextMovie['_key'])
                     logger.info(u"开始获取电影{}的信息".format(nextMovie['name']))
                     crawlerMovie(nextMovie['id'],nextMovie)
             except Exception:
@@ -191,9 +192,9 @@ if __name__ == '__main__':
             tread2.start()
             tread2.join()
     else:
-        tread1 = threading.Thread(target=movieThread)
-        tread1.start()
-        tread1.join()
+        # tread1 = threading.Thread(target=movieThread)
+        # tread1.start()
+        # tread1.join()
 
         tread2=threading.Thread(target=personThread)
         tread2.start()
