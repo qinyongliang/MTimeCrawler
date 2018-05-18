@@ -5,7 +5,7 @@ from pyArango.connection import *
 from pyArango.graph import *
 import random
 
-conn = Connection(arangoURL="http://119.28.134.85:8529",
+conn = Connection(arangoURL="http://localhost:8529",
                   username="root", password="123456")
 db = None
 
@@ -81,7 +81,7 @@ def next(collection):
                               sort doc.{1} desc
                               limit {2},{2}
                               return doc
-                              '''.format(collection, 'rating' if collection == 'movie' else 'movieCount', random.randint(1, 20))
+                              '''.format(collection, 'rating' if collection == 'movie' else 'movieCount', random.randint(1, 50))
     queryResult = db.AQLQuery(aql, rawResults=True, skip=int())
     for todo in queryResult:
         return todo
@@ -100,3 +100,8 @@ def have(collection, _key):
 
 def getdb():
     return db
+
+# 导出数据命令
+# arangoexport --type jsonl --collection leaguer --collection leaguer_edge --collection movie --collection person --collection personate_edge --collection relation_edge --server.database mtime --server.password 123456 --output-directory "dump"
+# 导入数据命令
+# ls |awk -F . '{print $1}'|xargs -i arangoimp --threads 4 --file "{}.jsonl" --type jsonl --collection "{}" --server.database mtime --server.password 123456

@@ -192,9 +192,9 @@ if __name__ == '__main__':
             tread2.start()
             tread2.join()
     else:
-        # tread1 = threading.Thread(target=movieThread)
-        # tread1.start()
-        # tread1.join()
+        tread1 = threading.Thread(target=movieThread)
+        tread1.start()
+        tread1.join()
 
         tread2=threading.Thread(target=personThread)
         tread2.start()
