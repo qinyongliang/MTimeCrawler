@@ -55,11 +55,6 @@ def crawlerMovie(id=253823,old = {}):
         }},
         types['persons'])), leaguers['types']))
     leaguers = list(reduce(lambda x, y: x + y, leaguers))
-    logger.info("\t获取到{}的{}条成员信息，保存中".format(movieInfo['name'], len(leaguers)))
-    save("leaguer",{
-        "movieId":id,
-        'leaguers': leaguers
-    }, id)
     # 保存到代添加列表
     logger.info("\t将获取到{}的{}条成员信息记录到待爬取列表".format(
         movieInfo['name'], len(leaguers)))
